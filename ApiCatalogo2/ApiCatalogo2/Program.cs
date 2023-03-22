@@ -18,7 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 //definir os endpoints
 
-app.MapGet("/", () => "Catálogo de Produtos - 2023");
+app.MapGet("/", () => "Catálogo de Produtos - 2023").ExcludeFromDescription();
 
 app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) =>
 {
@@ -55,6 +55,21 @@ app.MapPut("/categorias/{id:int}", async (int id, Categoria categoria, AppDbCont
     await db.SaveChangesAsync();
 
     return Results.Ok(categoriaDB);
+});
+
+app.MapDelete("/categorias/{id:int}", async (int id, AppDbContext db) =>
+{
+    var caregoria = await db.Categorias.FindAsync(id);
+
+    if (caregoria is null)
+    {
+        return Results.NotFound();
+    }
+
+    db.Categorias.Remove(caregoria);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
 });
 
 
