@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")] // /produtos
     [ApiController]
     public class ProdutosController : ControllerBase
     {
@@ -15,23 +15,42 @@ namespace APICatalogo.Controllers
             _context = context;
         }
 
+        // /api/produtos/primeiro
+        //[HttpGet("primeiro")]
+        //[HttpGet("/primeiro")]
+        [HttpGet("{valor:alpha:length(5)}")]
+        public ActionResult<Produto> GetPrimeiro()
+        {
+            var produto = _context.Produtos.FirstOrDefault();
+
+            if (produto is null)
+            {
+                return NotFound();
+            }
+            return produto; 
+        }
+
+        // /api/produtos
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        public async Task<ActionResult<IEnumerable<Produto>>> GetAsync()
         {
             //var produtos = _context.Produtos.Take(10).ToList(); limita a 10 produtos total
-            var produtos = _context.Produtos.AsNoTracking().ToList();
+            var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
 
             if (produtos is null)
             {
                 return NotFound("Produtos não encontrados...");
             }
-            return produtos; 
+            return produtos;
         }
 
-        [HttpGet("{id:int}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        // /api/produtos/id
+        [HttpGet("{id:int:min(1)}/{nome=Caderno}", Name = "ObterProduto")]
+        public async Task<ActionResult<Produto>> Get(int id, string nome)
         {
-            var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);
+            var parametro = nome;
+
+            var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.ProdutoId == id);
             if (produto is null)
             {
                 return NotFound("Produto não encontrado...");
@@ -39,6 +58,7 @@ namespace APICatalogo.Controllers
             return produto;
         }
 
+        // /api/produtos
         [HttpPost]
         public ActionResult Post(Produto produto)
         {
