@@ -1,4 +1,5 @@
 using APICatalogo.Context;
+using APICatalogo.Filters;
 using APICatalogo.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -13,6 +14,8 @@ builder.Services.AddControllers().
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<ApiLoggingFilter>();
 
 string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
