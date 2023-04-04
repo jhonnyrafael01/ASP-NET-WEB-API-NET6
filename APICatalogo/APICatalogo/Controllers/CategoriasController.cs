@@ -112,7 +112,7 @@ namespace APICatalogo.Controllers
             {
                 return NotFound($"Categoria com id={id} não encontrada...");
             }
-            _context.CategoriaRepository.Update(categoria);
+            _context.CategoriaRepository.Delete(categoria);
             _context.Commit();
 
             return Ok(categoria);
