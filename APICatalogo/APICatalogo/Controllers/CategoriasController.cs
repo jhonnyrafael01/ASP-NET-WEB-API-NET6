@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using APICatalogo.Services;
+using APICatalogo.Repository;
 
 namespace APICatalogo.Controllers
 {
@@ -11,14 +12,13 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _context;
         private readonly IConfiguration _configuration;
-        private readonly ILogger _logger;
-        public CategoriasController(AppDbContext context, IConfiguration configuration, ILogger<CategoriasController> logger)
+
+        public CategoriasController(IUnitOfWork contexto, IConfiguration configuration)
         {
-            _context = context;
+            _context = contexto;
             _configuration = configuration;
-            _logger = logger;
         }
 
         [HttpGet("autor")]
@@ -38,10 +38,7 @@ namespace APICatalogo.Controllers
         [HttpGet("produtos")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
-            _logger.LogInformation("=========== GET api/categorias/produtos =================");
-            // return _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToList();
-            return _context.Categorias.AsNoTracking().Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).ToList();
-
+            return _context.CategoriaRepository.GetCategoriaProdutos().ToList();
         }
 
         [HttpGet]
@@ -49,9 +46,7 @@ namespace APICatalogo.Controllers
         {
             try
             {
-                _logger.LogInformation("=========== GET api/categorias =================");
-
-                return _context.Categorias.AsNoTracking().ToList();
+                return _context.CategoriaRepository.Get().ToList(); 
             }
             catch (Exception)
             {
@@ -65,14 +60,10 @@ namespace APICatalogo.Controllers
         {
             try
             {
-                _logger.LogInformation($"=========== GET api/categorias/id = {id} =================");
-
-                var categoria = _context.Categorias.AsNoTracking().FirstOrDefault(p => p.CategoriaId == id);
+                var categoria = _context.CategoriaRepository.GetById(p => p.CategoriaId == id);
 
                 if (categoria is null)
                 {
-                    _logger.LogInformation($"=========== GET api/categorias/id = {id} NOT FOUND =================");
-
                     return NotFound($"Categoria com id={id} não encontrada...");
                 }
 
@@ -91,8 +82,8 @@ namespace APICatalogo.Controllers
             if (categoria is null)
                 return BadRequest("Dados inválidos");
 
-            _context.Categorias.Add(categoria);
-            _context.SaveChanges();
+            _context.CategoriaRepository.Add(categoria);
+            _context.Commit();
 
             return new CreatedAtRouteResult("ObterCategoria",
                 new { id = categoria.CategoriaId }, categoria);
@@ -106,8 +97,8 @@ namespace APICatalogo.Controllers
                 return BadRequest("Dados inválidos");
             }
 
-            _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
+            _context.CategoriaRepository.Update(categoria);
+            _context.Commit();
 
             return Ok(categoria);
         }
@@ -115,14 +106,14 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            var categoria = _context.CategoriaRepository.GetById(p => p.CategoriaId == id);
 
             if (categoria is null)
             {
                 return NotFound($"Categoria com id={id} não encontrada...");
             }
-            _context.Remove(categoria);
-            _context.SaveChanges();
+            _context.CategoriaRepository.Update(categoria);
+            _context.Commit();
 
             return Ok(categoria);
         }

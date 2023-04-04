@@ -23,7 +23,6 @@ namespace APICatalogo.Controllers
 
         // /api/produtos
         [HttpGet]
-        [ServiceFilter(typeof(ApiLoggingFilter))]
         public ActionResult<IEnumerable<Produto>> Get()
         {
             //var produtos = _uof.Produtos.Take(10).ToList(); limita a 10 produtos total
