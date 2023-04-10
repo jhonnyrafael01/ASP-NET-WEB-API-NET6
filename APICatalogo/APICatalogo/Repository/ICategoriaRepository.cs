@@ -5,7 +5,7 @@ namespace APICatalogo.Repository
 {
     public interface ICategoriaRepository : IRepository<Categoria>
     {
-        PagedList<Categoria> GetCategorias(CategoriasParameters produtosParameters);
-        IEnumerable<Categoria> GetCategoriaProdutos();
+        Task<PagedList<Categoria>> GetCategorias(CategoriasParameters produtosParameters);
+        Task<IEnumerable<Categoria>> GetCategoriaProdutos();
     }
 }
