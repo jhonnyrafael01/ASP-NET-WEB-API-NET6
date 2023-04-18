@@ -1,7 +1,6 @@
 using APICatalogo.Context;
 using APICatalogo.DTOs.Mappings;
 using APICatalogo.Extensions;
-using APICatalogo.Filters;
 using APICatalogo.Logging;
 using APICatalogo.Repository;
 using APICatalogo.Services;
@@ -87,6 +86,18 @@ builder.Services.AddTransient<IMeuServico, MeuServico>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+//definir politica cors via atributo
+/*builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirApiRequest",
+        builder =>
+        builder.WithOrigins("https://www.apirequest.io/")
+      .WithMethods("GET")
+      );
+});*/
+
+//builder.Services.AddCors();
+
 var mappingConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new MappingProfile());
@@ -116,6 +127,12 @@ app.ConfigureExceptionHandler();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+//politica CORS restritiva
+/*app.UseCors(opt => opt.
+    WithOrigins("https://www.apirequest.io/")
+        .WithMethods("GET"));*/
+app.UseCors(opt => opt.AllowAnyOrigin());
 
 app.MapControllers();
 app.Run();
