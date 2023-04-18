@@ -32,21 +32,9 @@ namespace APICatalogo.Controllers
 
         // /api/produtos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get([FromQuery] ProdutosParameters produtosParameters)
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
         {
-            var produtos = await _uof.ProdutoRepository.GetProdutos(produtosParameters);
-
-            var metadata = new
-            {
-                produtos.TotalCount,
-                produtos.PageSize,
-                produtos.CurrentPage,
-                produtos.TotalPages,
-                produtos.HasNext,
-                produtos.HasPrevious
-            };
-
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            var produtos = await _uof.ProdutoRepository.Get().ToListAsync();
 
             if (produtos is null)
             {
