@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 
 namespace APICatalogo.Controllers
 {
+    [Produces("application/json")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/[controller]")]
     [ApiController]
@@ -52,7 +53,12 @@ namespace APICatalogo.Controllers
 
         }
 
+        /// <summary>
+        /// Retorna todas as categorias
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
             try
@@ -69,8 +75,14 @@ namespace APICatalogo.Controllers
             }
         }
 
+        /// <summary>
+        /// obtem uma Categoria pelo seu Id
+        /// </summary>
+        /// <param name="id">codigo da categoria</param>
+        /// <returns>Objeto Categoria</returns>
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         //[EnableCors("PermitirApiRequest")]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
         public async Task<ActionResult<CategoriaDTO>> Get(int id)
         {
             try
@@ -94,6 +106,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
         public async Task<ActionResult> Post(CategoriaDTO categoriaDto)
         {
             if (categoriaDto is null)
@@ -111,6 +124,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
         public async Task<ActionResult> Put(int id, CategoriaDTO categoriaDto)
         {
             if (id != categoriaDto.CategoriaId)
@@ -129,6 +143,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Delete))]
         public async Task<ActionResult> Delete(int id)
         {
             var categoria = await _context.CategoriaRepository.GetById(p => p.CategoriaId == id);
