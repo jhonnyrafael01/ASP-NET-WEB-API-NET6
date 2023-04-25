@@ -13,30 +13,27 @@ using Newtonsoft.Json;
 namespace APICatalogo.Controllers
 {
     [Produces("application/json")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    //[Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/[controller]")]
     [ApiController]
-    //[EnableCors("PermitirApiRequest")]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _context;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        public CategoriasController(IUnitOfWork contexto, IConfiguration configuration, IMapper mapper)
+        public CategoriasController(IUnitOfWork contexto, IMapper mapper)
         {
             _context = contexto;
-            _configuration = configuration;
             _mapper = mapper;
         }
 
-        [HttpGet("autor")]
+       /* [HttpGet("autor")]
         public string GetAutor()
         {
             var autor = _configuration["Autor"];
             var conexao = _configuration["ConnectionStrings:DefaultConnection"];
             return $"Autor: {autor} \nConexão {conexao}";
-        }
+        }*/
 
         [HttpGet("saudacao/{nome}")]
         public ActionResult<string> GetSaudacao([FromServices] IMeuServico meuServico, string nome)
@@ -47,10 +44,16 @@ namespace APICatalogo.Controllers
         [HttpGet("produtos")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasProdutos()
         {
-            var categoria = await _context.CategoriaRepository.GetCategoriaProdutos();
-            var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
-            return categoriaDto;
-
+            try
+            {
+                var categoria = await _context.CategoriaRepository.GetCategoriaProdutos();
+                var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
+                return categoriaDto;
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         /// <summary>
@@ -64,14 +67,12 @@ namespace APICatalogo.Controllers
             try
             {
                 var categoria = await _context.CategoriaRepository.Get().ToListAsync();
-
                 var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
                 return categoriaDto;
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Ocorreu um problema ao tratar sua solicitação.");
+                return BadRequest();
             }
         }
 
@@ -96,7 +97,7 @@ namespace APICatalogo.Controllers
 
                 var categoriaDto = _mapper.Map<CategoriaDTO>(categoria);
 
-                return Ok(categoriaDto);
+                return categoriaDto;
             }
             catch (Exception)
             {
@@ -139,7 +140,7 @@ namespace APICatalogo.Controllers
 
             var categoriaDTO = _mapper.Map<CategoriaDTO>(categoria);
 
-            return Ok(categoriaDTO);
+            return Ok();
         }
 
         [HttpDelete("{id:int}")]
@@ -157,7 +158,7 @@ namespace APICatalogo.Controllers
 
             var categoriaDto = _mapper.Map<CategoriaDTO>(categoria);
 
-            return Ok(categoriaDto);
+            return Ok();
         }
     }
 }
